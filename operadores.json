@@ -1,0 +1,34 @@
+{
+  "operators": {
+    "1234": {
+      "nome": "João Silva",
+      "senha": "1234",
+      "setor": "Expedição"
+    },
+    "5678": {
+      "nome": "Maria Santos",
+      "senha": "5678",
+      "setor": "Separação"
+    },
+    "9999": {
+      "nome": "Carlos Oliveira",
+      "senha": "9999",
+      "setor": "Conferência"
+    },
+    "1111": {
+      "nome": "Ana Costa",
+      "senha": "1111",
+      "setor": "Expedição"
+    },
+    "2222": {
+      "nome": "Pedro Mendes",
+      "senha": "2222",
+      "setor": "Separação"
+    },
+    "3333": {
+      "nome": "Lucia Ferreira",
+      "senha": "3333",
+      "setor": "Conferência"
+    }
+  }
+}
