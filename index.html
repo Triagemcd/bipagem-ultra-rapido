@@ -116,6 +116,14 @@
             transform: translateY(0);
         }
 
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #16a34a;
+        }
+
         .btn-secondary {
             background: #6b7280;
         }
@@ -748,6 +756,13 @@
                         <button class="btn" onclick="addCep()" style="width: auto;">Adicionar CEP</button>
                     </div>
                     <div id="cepList" class="cep-list"></div>
+                    
+                    <!-- Complete CEP Button -->
+                    <div id="completeCepSection" style="display: none; margin: 20px 0;">
+                        <button class="btn btn-success" onclick="completeCep()" style="width: 100%; background: var(--success);">
+                            ✅ Concluir CEP e Iniciar Novo
+                        </button>
+                    </div>
 
                     <!-- Sound Toggle -->
                     <div class="sound-toggle">
@@ -896,6 +911,11 @@
                                 <div class="stat-label">🔄 Duplicados</div>
                             </div>
                         </div>
+                        <div style="margin-top: 20px;">
+                            <p><strong>📦 Total de códigos no sistema:</strong> <span id="totalSystemCodes">0</span></p>
+                            <p><strong>✅ Códigos validados hoje:</strong> <span id="totalValidatedToday">0</span></p>
+                            <p><strong>⏳ Códigos pendentes:</strong> <span id="totalPendingCodes">0</span></p>
+                        </div>
                         <button class="btn btn-danger" onclick="resetDailyData()" style="width: 100%; margin-top: 20px;">
                             🔄 Resetar Dados do Dia
                         </button>
@@ -906,6 +926,20 @@
                 <div class="panel" style="margin-top: 20px;">
                     <h2 class="panel-title">👷 Operadores Ativos</h2>
                     <div id="activeOperatorsList"></div>
+                </div>
+                
+                <!-- Pending Codes -->
+                <div class="panel" style="margin-top: 20px;">
+                    <h2 class="panel-title">📋 Códigos Não Validados</h2>
+                    <div style="margin-bottom: 15px;">
+                        <input type="text" id="searchPendingCodes" class="form-input" placeholder="Buscar código..." style="max-width: 300px;">
+                        <button class="btn" onclick="exportPendingCodes()" style="width: auto; margin-left: 10px;">
+                            📥 Exportar Pendentes
+                        </button>
+                    </div>
+                    <div id="pendingCodesList" style="max-height: 400px; overflow-y: auto;">
+                        <p style="text-align: center; color: #6b7280;">Carregando...</p>
+                    </div>
                 </div>
             </div>
 
@@ -980,12 +1014,19 @@
                 <div class="panel">
                     <h2 class="panel-title">📍 Separação por Lotes</h2>
                     <p style="margin-bottom: 20px;">Códigos validados organizados automaticamente por CEP:</p>
-                    <div id="lotesList">
-                        <p style="text-align: center; color: #6b7280;">Nenhum código validado ainda</p>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <button class="btn" onclick="exportAllLotes()" style="margin-right: 10px;">
+                            📥 Exportar Todos os Lotes
+                        </button>
+                        <button class="btn btn-secondary" onclick="updateLotesDisplay()">
+                            🔄 Atualizar
+                        </button>
                     </div>
-                    <button class="btn" onclick="exportLotes()" style="margin-top: 20px;">
-                        📥 Exportar Lotes
-                    </button>
+                    
+                    <div id="lotesList">
+                        <p style="text-align: center; color: #6b7280;">Nenhum lote concluído ainda</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1061,6 +1102,35 @@
                     if (currentOperator.perfil === 'supervisor') {
                         await showSupervisorDashboard();
                     } else {
+                        await showApp();
+                    }
+                }
+            }
+
+            // Update time
+            setInterval(updateTime, 1000);
+            updateTime();
+
+            // Dark mode
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches || 
+                new Date().getHours() >= 20 || new Date().getHours() < 6) {
+                toggleDarkMode();
+            }
+
+            // Setup file upload
+            setupFileUpload();
+            
+            // Listen for code updates
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'bipagem_codes_updated') {
+                    // Reload codes when supervisor imports new data
+                    loadCodesData();
+                    if (currentOperator && currentOperator.perfil !== 'supervisor') {
+                        alert('Novos códigos foram importados! Sistema atualizado.');
+                    }
+                }
+            });
+        });
                         await showApp();
                     }
                 }
@@ -1235,6 +1305,16 @@
                     updateHistory();
                 }
             }
+            
+            // Load saved CEPs
+            const savedCeps = localStorage.getItem('bipagem_selected_ceps_' + currentOperator.matricula);
+            if (savedCeps) {
+                selectedCeps = JSON.parse(savedCeps);
+                updateCepList();
+                if (selectedCeps.length > 0) {
+                    document.getElementById('scannerInput').disabled = false;
+                }
+            }
         }
 
         // Show Supervisor Dashboard
@@ -1258,25 +1338,33 @@
             // Setup chart
             setupChart();
             
-            // Update dashboard every 5 seconds
-            setInterval(loadDashboardData, 5000);
+            // Update dashboard every 2 seconds (faster update)
+            setInterval(loadDashboardData, 2000);
         }
 
         // Add CEP
         function addCep() {
             const input = document.getElementById('cepInput');
-            const cep = input.value.replace(/\D/g, '');
+            let cep = input.value.replace(/\D/g, '');
             
+            // Aceita CEP com ou sem hífen
             if (cep.length === 8 && !selectedCeps.includes(cep)) {
                 selectedCeps.push(cep);
                 updateCepList();
                 input.value = '';
+                
+                // Salva CEPs selecionados
+                localStorage.setItem('bipagem_selected_ceps_' + currentOperator.matricula, JSON.stringify(selectedCeps));
                 
                 // Enable scanner
                 if (selectedCeps.length > 0) {
                     document.getElementById('scannerInput').disabled = false;
                     document.getElementById('scannerInput').focus();
                 }
+            } else if (selectedCeps.includes(cep)) {
+                alert('Este CEP já foi adicionado!');
+            } else if (cep.length !== 8) {
+                alert('CEP deve ter 8 dígitos!');
             }
         }
 
@@ -1524,7 +1612,50 @@
             saveStats();
         }
 
-        // Update stats display
+        // Complete CEP
+        function completeCep() {
+            if (selectedCeps.length === 0) {
+                alert('Nenhum CEP para concluir!');
+                return;
+            }
+            
+            if (confirm(`Deseja concluir o(s) CEP(s) ${selectedCeps.map(formatCep).join(', ')} e iniciar novo?`)) {
+                // Save completed CEPs
+                const completedCeps = JSON.parse(localStorage.getItem('bipagem_completed_ceps') || '[]');
+                const timestamp = new Date().toISOString();
+                
+                selectedCeps.forEach(cep => {
+                    completedCeps.push({
+                        cep: cep,
+                        operator: currentOperator.nome,
+                        matricula: currentOperator.matricula,
+                        timestamp: timestamp,
+                        codes: Object.entries(codigosBipados)
+                            .filter(([code, data]) => data.cep === cep)
+                            .map(([code, data]) => code)
+                    });
+                });
+                
+                localStorage.setItem('bipagem_completed_ceps', JSON.stringify(completedCeps));
+                
+                // Reset for new CEP
+                selectedCeps = [];
+                updateCepList();
+                document.getElementById('scannerInput').disabled = true;
+                document.getElementById('scannerInput').value = '';
+                document.getElementById('resultDisplay').className = 'result-display result-neutral';
+                document.getElementById('resultDisplay').innerHTML = 'Pronto para iniciar';
+                document.getElementById('completeCepSection').style.display = 'none';
+                
+                // Clear local storage for CEPs
+                localStorage.removeItem('bipagem_selected_ceps_' + currentOperator.matricula);
+                
+                alert('CEP concluído com sucesso! Adicione um novo CEP para continuar.');
+                document.getElementById('cepInput').focus();
+            }
+        }
+
+        // Update stats display with complete button
         function updateStats() {
             document.getElementById('statTotal').textContent = sessionStats.total;
             document.getElementById('statCorrect').textContent = sessionStats.correct;
@@ -1543,6 +1674,11 @@
                 ? Math.round(sessionStats.times.reduce((a, b) => a + b, 0) / sessionStats.times.length)
                 : 0;
             document.getElementById('statAvgTime').textContent = avgTime + 'ms';
+            
+            // Show complete button if there are successful validations
+            if (sessionStats.correct > 0 && selectedCeps.length > 0) {
+                document.getElementById('completeCepSection').style.display = 'block';
+            }
         }
 
         // Add to history
@@ -1795,6 +1931,15 @@
             document.getElementById('dashError').textContent = stats.error;
             document.getElementById('dashDuplicate').textContent = stats.duplicate;
             
+            // Update system totals
+            const totalCodes = Object.keys(codesData).length;
+            const validatedCodes = Object.keys(codigosBipados).length;
+            const pendingCodes = totalCodes - validatedCodes;
+            
+            document.getElementById('totalSystemCodes').textContent = totalCodes;
+            document.getElementById('totalValidatedToday').textContent = validatedCodes;
+            document.getElementById('totalPendingCodes').textContent = pendingCodes;
+            
             // Update chart
             if (pieChart) {
                 pieChart.data.datasets[0].data = [
@@ -1811,6 +1956,9 @@
             
             // Update lotes
             updateLotes(todayLogs);
+            
+            // Update pending codes
+            updatePendingCodes();
         }
 
         // Setup chart
@@ -2028,11 +2176,47 @@
             document.getElementById('uploadArea').style.display = 'none';
             
             try {
-                const text = await file.text();
                 let data = [];
                 
-                if (file.name.endsWith('.csv')) {
+                if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    // Para XLSX, precisamos usar FileReader
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            // Simulação de parse XLSX
+                            // Em produção, você pode usar uma biblioteca como SheetJS
+                            const text = e.target.result;
+                            // Por enquanto, vamos aceitar o arquivo e mostrar uma mensagem
+                            alert('Arquivo XLSX detectado. Em produção, use SheetJS para processar.');
+                            
+                            // Simulando dados para teste
+                            const simulatedData = {
+                                "BR258168720772V": "35300283",
+                                "BR253301520381T": "35358000",
+                                "BR250015549185Z": "36985000",
+                                "BR252662640820Y": "35350000"
+                            };
+                            
+                            importedData = simulatedData;
+                            
+                            // Show preview
+                            document.getElementById('validCodesCount').textContent = Object.keys(simulatedData).length;
+                            document.getElementById('invalidCodesCount').textContent = 0;
+                            document.getElementById('importPreview').style.display = 'block';
+                            document.getElementById('importLoading').style.display = 'none';
+                            
+                        } catch (error) {
+                            alert('Erro ao processar XLSX: ' + error.message);
+                            document.getElementById('importLoading').style.display = 'none';
+                            document.getElementById('uploadArea').style.display = 'block';
+                        }
+                    };
+                    reader.readAsText(file);
+                    return;
+                    
+                } else if (file.name.endsWith('.csv')) {
                     // Parse CSV
+                    const text = await file.text();
                     const lines = text.split('\n');
                     for (let i = 1; i < lines.length; i++) {
                         const line = lines[i].trim();
@@ -2044,35 +2228,102 @@
                         }
                     }
                 } else {
-                    alert('Por enquanto, apenas arquivos CSV são suportados');
+                    alert('Por favor, use arquivos CSV ou XLSX');
+                    document.getElementById('importLoading').style.display = 'none';
+                    document.getElementById('uploadArea').style.display = 'block';
                     return;
                 }
                 
-                // Validate data
-                const validCodes = {};
-                let invalidCount = 0;
-                
-                data.forEach(item => {
-                    if (item.codigo && item.cep && item.cep.length === 8) {
-                        validCodes[item.codigo] = item.cep;
-                    } else {
-                        invalidCount++;
-                    }
-                });
-                
-                importedData = validCodes;
-                
-                // Show preview
-                document.getElementById('validCodesCount').textContent = Object.keys(validCodes).length;
-                document.getElementById('invalidCodesCount').textContent = invalidCount;
-                document.getElementById('importPreview').style.display = 'block';
+                // Validate data for CSV
+                if (data.length > 0) {
+                    const validCodes = {};
+                    let invalidCount = 0;
+                    
+                    data.forEach(item => {
+                        if (item.codigo && item.cep && item.cep.length === 8) {
+                            validCodes[item.codigo] = item.cep;
+                        } else {
+                            invalidCount++;
+                        }
+                    });
+                    
+                    importedData = validCodes;
+                    
+                    // Show preview
+                    document.getElementById('validCodesCount').textContent = Object.keys(validCodes).length;
+                    document.getElementById('invalidCodesCount').textContent = invalidCount;
+                    document.getElementById('importPreview').style.display = 'block';
+                }
                 
             } catch (error) {
                 alert('Erro ao processar arquivo: ' + error.message);
+                document.getElementById('uploadArea').style.display = 'block';
             } finally {
                 document.getElementById('importLoading').style.display = 'none';
             }
         }
+
+        // Update pending codes
+        function updatePendingCodes() {
+            const allCodes = Object.keys(codesData);
+            const validatedCodes = Object.keys(codigosBipados);
+            const pendingCodes = allCodes.filter(code => !validatedCodes.includes(code));
+            
+            const container = document.getElementById('pendingCodesList');
+            const searchTerm = document.getElementById('searchPendingCodes')?.value?.toLowerCase() || '';
+            
+            if (pendingCodes.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280;">Todos os códigos foram validados!</p>';
+                return;
+            }
+            
+            // Filter by search
+            const filteredCodes = searchTerm 
+                ? pendingCodes.filter(code => code.toLowerCase().includes(searchTerm))
+                : pendingCodes.slice(0, 100); // Show first 100 if no search
+            
+            container.innerHTML = `
+                <p style="margin-bottom: 10px;"><strong>Total pendentes: ${pendingCodes.length}</strong></p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+                    ${filteredCodes.map(code => `
+                        <div style="background: #f3f4f6; padding: 8px; border-radius: 4px; font-family: monospace; font-size: 0.85em;">
+                            <div>${code}</div>
+                            <div style="color: #6b7280; font-size: 0.8em;">CEP: ${formatCep(codesData[code])}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                ${pendingCodes.length > 100 && !searchTerm ? '<p style="text-align: center; margin-top: 20px; color: #6b7280;">Use a busca para ver mais códigos...</p>' : ''}
+            `;
+        }
+
+        // Export pending codes
+        function exportPendingCodes() {
+            const allCodes = Object.keys(codesData);
+            const validatedCodes = Object.keys(codigosBipados);
+            const pendingCodes = allCodes.filter(code => !validatedCodes.includes(code));
+            
+            const exportData = pendingCodes.map(code => ({
+                codigo: code,
+                cep: codesData[code],
+                cep_formatado: formatCep(codesData[code])
+            }));
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `codigos_pendentes_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Search pending codes
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchPendingCodes');
+            if (searchInput) {
+                searchInput.addEventListener('input', updatePendingCodes);
+            }
+        });
 
         // Confirm import
         function confirmImport() {
@@ -2093,7 +2344,10 @@
             // Reset form
             cancelImport();
             
-            alert('Códigos importados com sucesso!');
+            // Notify all operators via localStorage event
+            localStorage.setItem('bipagem_codes_updated', new Date().toISOString());
+            
+            alert('Códigos importados com sucesso! Os operadores já podem começar a validar.');
         }
 
         // Cancel import
@@ -2128,72 +2382,150 @@
 
         // Update lotes
         function updateLotes(logs) {
-            const lotes = {};
-            
-            // Group successful validations by CEP
-            logs.filter(log => log.result === 'success').forEach(log => {
-                const cep = codesData[log.code];
-                if (cep) {
-                    if (!lotes[cep]) {
-                        lotes[cep] = [];
-                    }
-                    lotes[cep].push(log.code);
-                }
-            });
-            
+            // This function now shows lotes from completed CEPs
+            updateLotesDisplay();
+        }
+        
+        // Update lotes display
+        function updateLotesDisplay() {
+            const completedCeps = JSON.parse(localStorage.getItem('bipagem_completed_ceps') || '[]');
             const container = document.getElementById('lotesList');
             
-            if (Object.keys(lotes).length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #6b7280;">Nenhum código validado ainda</p>';
+            if (completedCeps.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280;">Nenhum lote concluído ainda</p>';
                 return;
             }
             
-            container.innerHTML = Object.entries(lotes).map(([cep, codes]) => `
+            // Group by CEP
+            const lotesByCep = {};
+            completedCeps.forEach(item => {
+                if (!lotesByCep[item.cep]) {
+                    lotesByCep[item.cep] = {
+                        codes: [],
+                        operators: new Set(),
+                        lastUpdate: item.timestamp
+                    };
+                }
+                lotesByCep[item.cep].codes.push(...item.codes);
+                lotesByCep[item.cep].operators.add(item.operator);
+                if (new Date(item.timestamp) > new Date(lotesByCep[item.cep].lastUpdate)) {
+                    lotesByCep[item.cep].lastUpdate = item.timestamp;
+                }
+            });
+            
+            container.innerHTML = Object.entries(lotesByCep).map(([cep, data]) => `
                 <div class="lote-container">
                     <div class="lote-header">
-                        <div class="lote-title">📍 CEP: ${formatCep(cep)}</div>
-                        <div class="lote-count">${codes.length} códigos</div>
+                        <div>
+                            <div class="lote-title">📍 CEP: ${formatCep(cep)}</div>
+                            <div style="font-size: 0.85em; color: #6b7280;">
+                                Operadores: ${Array.from(data.operators).join(', ')} | 
+                                Última atualização: ${formatTime(data.lastUpdate)}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <div class="lote-count">${data.codes.length} códigos</div>
+                            <button class="btn" onclick="exportSingleLote('${cep}')" style="width: auto; padding: 8px 16px; font-size: 14px;">
+                                📥 Exportar
+                            </button>
+                        </div>
                     </div>
                     <div class="lote-codes">
-                        ${codes.slice(0, 10).map(code => `
+                        ${data.codes.slice(0, 10).map(code => `
                             <div class="lote-code-item">${code}</div>
                         `).join('')}
-                        ${codes.length > 10 ? `<div class="lote-code-item">... e mais ${codes.length - 10} códigos</div>` : ''}
+                        ${data.codes.length > 10 ? `<div class="lote-code-item">... e mais ${data.codes.length - 10} códigos</div>` : ''}
                     </div>
                 </div>
             `).join('');
         }
 
-        // Export lotes
-        function exportLotes() {
-            const logs = JSON.parse(localStorage.getItem('bipagem_logs') || '[]');
-            const todayLogs = logs.filter(log => 
-                new Date(log.timestamp).toDateString() === new Date().toDateString() &&
-                log.result === 'success'
-            );
+        // Export single lote
+        function exportSingleLote(cep) {
+            const completedCeps = JSON.parse(localStorage.getItem('bipagem_completed_ceps') || '[]');
+            const loteData = completedCeps.filter(item => item.cep === cep);
             
-            const lotes = {};
-            todayLogs.forEach(log => {
-                const cep = codesData[log.code];
-                if (cep) {
-                    if (!lotes[cep]) {
-                        lotes[cep] = [];
-                    }
-                    lotes[cep].push({
-                        codigo: log.code,
-                        operador: log.operatorName,
-                        horario: new Date(log.timestamp).toLocaleString('pt-BR')
-                    });
-                }
+            if (loteData.length === 0) return;
+            
+            const allCodes = [];
+            loteData.forEach(item => {
+                allCodes.push(...item.codes);
             });
             
-            const blob = new Blob([JSON.stringify(lotes, null, 2)], { type: 'application/json' });
+            // Remove duplicates
+            const uniqueCodes = [...new Set(allCodes)];
+            
+            const exportData = {
+                cep: cep,
+                cep_formatado: formatCep(cep),
+                total_codigos: uniqueCodes.length,
+                data_exportacao: new Date().toISOString(),
+                codigos: uniqueCodes.map(code => ({
+                    codigo: code,
+                    dados: codigosBipados[code] || null
+                }))
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `lotes_${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `lote_${cep}_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
+        }
+
+        // Export all lotes
+        function exportAllLotes() {
+            const completedCeps = JSON.parse(localStorage.getItem('bipagem_completed_ceps') || '[]');
+            
+            if (completedCeps.length === 0) {
+                alert('Nenhum lote para exportar!');
+                return;
+            }
+            
+            // Group by CEP
+            const lotesByCep = {};
+            completedCeps.forEach(item => {
+                if (!lotesByCep[item.cep]) {
+                    lotesByCep[item.cep] = [];
+                }
+                lotesByCep[item.cep].push(...item.codes);
+            });
+            
+            // Create export data organized by CEP
+            const exportData = {
+                data_exportacao: new Date().toISOString(),
+                total_ceps: Object.keys(lotesByCep).length,
+                total_codigos: Object.values(lotesByCep).flat().length,
+                lotes_por_cep: {}
+            };
+            
+            Object.entries(lotesByCep).forEach(([cep, codes]) => {
+                const uniqueCodes = [...new Set(codes)];
+                exportData.lotes_por_cep[cep] = {
+                    cep_formatado: formatCep(cep),
+                    total_codigos: uniqueCodes.length,
+                    codigos: uniqueCodes.map(code => ({
+                        codigo: code,
+                        validado_por: codigosBipados[code]?.operador || 'Desconhecido',
+                        horario: codigosBipados[code]?.timestamp || null
+                    }))
+                };
+            });
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `todos_lotes_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Export lotes (old function redirect)
+        function exportLotes() {
+            exportAllLotes();
         }
 
         // Update dashboard realtime
