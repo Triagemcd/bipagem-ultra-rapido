@@ -1101,9 +1101,7 @@
                     currentOperator = session.operator;
                     if (currentOperator.perfil === 'supervisor') {
                         await showSupervisorDashboard();
-                    } else {
-                        await showApp();
-                    }
+                    } else {}
                 }
             }
 
@@ -1130,9 +1128,7 @@
                     }
                 }
             });
-        });
-                        await showApp();
-                    }
+        });}
                 }
             }
 
@@ -1265,9 +1261,7 @@
                 
                 if (currentOperator.perfil === 'supervisor') {
                     await showSupervisorDashboard();
-                } else {
-                    await showApp();
-                }
+                } else {}
             } else {
                 errorDiv.textContent = 'Matrícula ou senha inválida';
                 errorDiv.style.display = 'block';
