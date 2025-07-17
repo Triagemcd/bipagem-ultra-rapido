@@ -16,6 +16,7 @@
             --success: #22c55e;
             --error: #ef4444;
             --warning: #f59e0b;
+            --duplicate: #8b5cf6;
             --dark: #1f2937;
             --light: #f3f4f6;
             --white: #ffffff;
@@ -113,6 +114,22 @@
 
         .btn:active {
             transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-danger {
+            background: var(--error);
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
         }
 
         /* Main App */
@@ -219,6 +236,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
             transition: all 0.3s;
         }
 
@@ -237,10 +255,21 @@
             color: white;
         }
 
+        .result-duplicate {
+            background: var(--duplicate);
+            color: white;
+        }
+
         .result-neutral {
             background: var(--light);
             color: var(--dark);
             border: 2px dashed #d1d5db;
+        }
+
+        .result-detail {
+            font-size: 0.7em;
+            margin-top: 10px;
+            opacity: 0.9;
         }
 
         /* History */
@@ -276,6 +305,10 @@
             border-left: 4px solid var(--warning);
         }
 
+        .history-duplicate {
+            border-left: 4px solid var(--duplicate);
+        }
+
         .history-code {
             font-family: 'Courier New', monospace;
             font-weight: 600;
@@ -289,7 +322,7 @@
         /* Statistics */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 15px;
             margin-top: 20px;
         }
@@ -349,6 +382,148 @@
             font-weight: bold;
         }
 
+        /* Supervisor Dashboard */
+        .supervisor-container {
+            display: none;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6b7280;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .data-table th {
+            background: var(--light);
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .modal-close:hover {
+            color: var(--dark);
+        }
+
+        /* File Upload */
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: #f0f9ff;
+        }
+
+        .upload-area.dragover {
+            border-color: var(--primary);
+            background: #dbeafe;
+        }
+
         /* Loading */
         .loading {
             display: none;
@@ -392,6 +567,85 @@
             transform: scale(1.1);
         }
 
+        /* Sound Toggle */
+        .sound-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            background: #cbd5e1;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--success);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(25px);
+        }
+
+        /* Lotes */
+        .lote-container {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .lote-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .lote-title {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .lote-count {
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .lote-codes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .lote-code-item {
+            background: var(--light);
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .container {
@@ -410,6 +664,10 @@
             .result-display {
                 font-size: 1.2em;
                 padding: 30px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -452,7 +710,7 @@
         </div>
     </div>
 
-    <!-- Main App -->
+    <!-- Operator App -->
     <div id="appScreen" class="app-container">
         <div class="container">
             <!-- Header -->
@@ -466,7 +724,7 @@
                             <span id="operatorId">-</span>
                         </div>
                         <div class="header-item">
-                            <span>📍 CEP:</span>
+                            <span>📍 CEPs:</span>
                             <span id="currentCep">Não configurado</span>
                         </div>
                         <div class="header-item">
@@ -486,10 +744,18 @@
                     
                     <!-- CEP Configuration -->
                     <div class="cep-config">
-                        <input type="text" id="cepInput" class="form-input cep-input" placeholder="Digite o CEP da gaiola">
+                        <input type="text" id="cepInput" class="form-input cep-input" placeholder="Digite o CEP da gaiola" maxlength="9">
                         <button class="btn" onclick="addCep()" style="width: auto;">Adicionar CEP</button>
                     </div>
                     <div id="cepList" class="cep-list"></div>
+
+                    <!-- Sound Toggle -->
+                    <div class="sound-toggle">
+                        <span>🔊 Sons:</span>
+                        <div class="toggle-switch active" id="soundToggle" onclick="toggleSound()">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
 
                     <!-- Scanner Input -->
                     <div class="scanner-section">
@@ -531,6 +797,10 @@
                             <div class="stat-value" id="statError" style="color: var(--error);">0</div>
                             <div class="stat-label">❌ Errados</div>
                         </div>
+                        <div class="stat-card" style="background: rgba(139, 92, 246, 0.1);">
+                            <div class="stat-value" id="statDuplicate" style="color: var(--duplicate);">0</div>
+                            <div class="stat-label">🔄 Duplicados</div>
+                        </div>
                         <div class="stat-card" style="background: rgba(245, 158, 11, 0.1);">
                             <div class="stat-value" id="statNotFound" style="color: var(--warning);">0</div>
                             <div class="stat-label">🔍 Não Encontrados</div>
@@ -567,11 +837,193 @@
         </div>
     </div>
 
+    <!-- Supervisor Dashboard -->
+    <div id="supervisorScreen" class="supervisor-container">
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-content">
+                    <h1 class="header-title">📊 Dashboard Supervisor | Bipagem Ultra-Rápido</h1>
+                    <div class="header-info">
+                        <div class="header-item">
+                            <span>👨‍💼</span>
+                            <span id="supervisorName">-</span>
+                        </div>
+                        <div class="header-item">
+                            <span>🕐</span>
+                            <span id="supervisorTime">-</span>
+                        </div>
+                        <button class="btn" onclick="logout()" style="width: auto; padding: 8px 16px; font-size: 14px;">Sair</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+                <button class="tab" onclick="switchTab('operators')">👥 Operadores</button>
+                <button class="tab" onclick="switchTab('import')">📦 Importar Códigos</button>
+                <button class="tab" onclick="switchTab('lotes')">📍 Separação por Lotes</button>
+            </div>
+
+            <!-- Tab Contents -->
+            <!-- Dashboard Tab -->
+            <div id="dashboardTab" class="tab-content active">
+                <div class="dashboard-grid">
+                    <div class="panel">
+                        <h2 class="panel-title">📊 Distribuição de Validações</h2>
+                        <div class="chart-container">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <h2 class="panel-title">📈 Estatísticas Gerais</h2>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="dashTotal">0</div>
+                                <div class="stat-label">Total</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="dashSuccess">0</div>
+                                <div class="stat-label">✅ Sucesso</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="dashError">0</div>
+                                <div class="stat-label">❌ Erros</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="dashDuplicate">0</div>
+                                <div class="stat-label">🔄 Duplicados</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger" onclick="resetDailyData()" style="width: 100%; margin-top: 20px;">
+                            🔄 Resetar Dados do Dia
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Operators -->
+                <div class="panel" style="margin-top: 20px;">
+                    <h2 class="panel-title">👷 Operadores Ativos</h2>
+                    <div id="activeOperatorsList"></div>
+                </div>
+            </div>
+
+            <!-- Operators Tab -->
+            <div id="operatorsTab" class="tab-content">
+                <div class="panel">
+                    <h2 class="panel-title">👥 Gerenciar Operadores</h2>
+                    <button class="btn" onclick="showAddOperatorModal()" style="width: auto; margin-bottom: 20px;">
+                        ➕ Adicionar Novo Operador
+                    </button>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Matrícula</th>
+                                <th>Nome</th>
+                                <th>Senha</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="operatorsTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Import Tab -->
+            <div id="importTab" class="tab-content">
+                <div class="panel">
+                    <h2 class="panel-title">📦 Importação Diária de Códigos</h2>
+                    <div style="margin-bottom: 20px;">
+                        <p><strong>📅 Última importação:</strong> <span id="lastImportDate">Nunca</span></p>
+                        <p><strong>📊 Total de códigos ativos:</strong> <span id="totalCodesCount">0</span></p>
+                    </div>
+                    
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+                        <p style="font-size: 1.2em; margin-bottom: 10px;">📎 Arraste o arquivo aqui</p>
+                        <p style="color: #6b7280;">ou</p>
+                        <button class="btn" onclick="document.getElementById('fileInput').click()" style="width: auto; margin-top: 10px;">
+                            Selecionar Arquivo
+                        </button>
+                        <p style="color: #6b7280; font-size: 0.9em; margin-top: 20px;">
+                            Formatos aceitos: CSV, Excel (XLSX, XLS)
+                        </p>
+                    </div>
+
+                    <div id="importPreview" style="display: none; margin-top: 20px;">
+                        <h3>📋 Preview da Importação:</h3>
+                        <p>✅ <span id="validCodesCount">0</span> códigos válidos</p>
+                        <p>❌ <span id="invalidCodesCount">0</span> códigos inválidos</p>
+                        <div style="margin-top: 20px;">
+                            <button class="btn" onclick="confirmImport()">Confirmar Importação</button>
+                            <button class="btn btn-secondary" onclick="cancelImport()" style="margin-left: 10px;">Cancelar</button>
+                        </div>
+                    </div>
+
+                    <div class="loading" id="importLoading">
+                        <div class="spinner"></div>
+                        <p>Processando arquivo...</p>
+                    </div>
+
+                    <div style="margin-top: 30px; padding: 20px; background: #fef3c7; border-radius: 8px;">
+                        <p style="color: #92400e; font-weight: 600;">⚠️ ATENÇÃO:</p>
+                        <p style="color: #92400e;">A importação substitui TODOS os códigos anteriores!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lotes Tab -->
+            <div id="lotesTab" class="tab-content">
+                <div class="panel">
+                    <h2 class="panel-title">📍 Separação por Lotes</h2>
+                    <p style="margin-bottom: 20px;">Códigos validados organizados automaticamente por CEP:</p>
+                    <div id="lotesList">
+                        <p style="text-align: center; color: #6b7280;">Nenhum código validado ainda</p>
+                    </div>
+                    <button class="btn" onclick="exportLotes()" style="margin-top: 20px;">
+                        📥 Exportar Lotes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Operator Modal -->
+    <div id="addOperatorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>➕ Adicionar Novo Operador</h2>
+                <span class="modal-close" onclick="closeAddOperatorModal()">&times;</span>
+            </div>
+            <form id="addOperatorForm">
+                <div class="form-group">
+                    <label class="form-label">Matrícula</label>
+                    <input type="text" id="newMatricula" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nome</label>
+                    <input type="text" id="newNome" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Senha</label>
+                    <input type="password" id="newSenha" class="form-input" required>
+                </div>
+                <button type="submit" class="btn">Salvar</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Dark Mode Toggle -->
     <button class="dark-mode-toggle" onclick="toggleDarkMode()">
         <span id="darkModeIcon">🌙</span>
     </button>
 
+    <!-- Chart.js for Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <script>
         // Global Variables
         let codesData = {};
@@ -582,10 +1034,15 @@
             total: 0,
             correct: 0,
             error: 0,
+            duplicate: 0,
             notFound: 0,
             times: []
         };
         let history = [];
+        let codigosBipados = {};
+        let soundEnabled = true;
+        let importedData = null;
+        let pieChart = null;
 
         // Audio Context for beeps
         let audioContext = null;
@@ -601,7 +1058,11 @@
                 const session = JSON.parse(savedSession);
                 if (session.operator && new Date() - new Date(session.timestamp) < 8 * 60 * 60 * 1000) {
                     currentOperator = session.operator;
-                    await showApp();
+                    if (currentOperator.perfil === 'supervisor') {
+                        await showSupervisorDashboard();
+                    } else {
+                        await showApp();
+                    }
                 }
             }
 
@@ -614,6 +1075,9 @@
                 new Date().getHours() >= 20 || new Date().getHours() < 6) {
                 toggleDarkMode();
             }
+
+            // Setup file upload
+            setupFileUpload();
         });
 
         // Load operators data
@@ -621,15 +1085,23 @@
             try {
                 // For demo purposes, using embedded data
                 operatorsData = {
-                    "1234": { "nome": "João Silva", "senha": "1234", "setor": "Expedição" },
-                    "5678": { "nome": "Maria Santos", "senha": "5678", "setor": "Separação" },
-                    "9999": { "nome": "Carlos Oliveira", "senha": "9999", "setor": "Conferência" }
+                    "1234": { "nome": "João Silva", "senha": "1234", "perfil": "operador" },
+                    "5678": { "nome": "Maria Santos", "senha": "5678", "perfil": "operador" },
+                    "9999": { "nome": "Carlos Supervisor", "senha": "9999", "perfil": "supervisor" },
+                    "1111": { "nome": "Ana Costa", "senha": "1111", "perfil": "operador" },
+                    "2222": { "nome": "Pedro Mendes", "senha": "2222", "perfil": "operador" }
                 };
                 
                 // In production, load from operadores.json
                 // const response = await fetch('operadores.json');
                 // const data = await response.json();
                 // operatorsData = data.operators;
+                
+                // Load from localStorage if exists
+                const savedOperators = localStorage.getItem('bipagem_operators');
+                if (savedOperators) {
+                    operatorsData = JSON.parse(savedOperators);
+                }
             } catch (error) {
                 console.error('Error loading operators:', error);
             }
@@ -640,46 +1112,60 @@
             document.getElementById('loading').style.display = 'block';
             
             try {
-                // For demo purposes, using embedded data
-                codesData = {
-                    "BR259747338411J": "36960000",
-                    "BR253223789688Z": "36950000",
-                    "BR258554089877H": "35300114",
-                    "BR251547397372A": "35300352",
-                    "BR250479272632K": "35350000",
-                    "BR252995453810J": "35334000",
-                    "BR258009821176I": "35324000",
-                    "BR250679813958H": "36985000",
-                    "BR255038998529P": "35325000",
-                    "BR255021795505T": "35323000",
-                    "BR250975639954M": "35330000",
-                    "BR254999675182G": "36955000",
-                    "BR253288681003L": "35300238",
-                    "BR258650626221K": "35300206",
-                    "BR252376322316V": "35330000",
-                    "BR254192166075H": "36955000",
-                    "BR257915739529H": "35300333",
-                    "BR259720647109B": "36950000",
-                    "BR257312724687K": "36950000",
-                    "BR251568951275J": "35350000",
-                    "BR256418899822C": "35350000",
-                    "BR250437397695I": "36955000",
-                    "BR254664600882L": "36955000",
-                    "BR251858464207E": "35330000",
-                    "BR254916621112D": "36950000",
-                    "BR253375879177S": "35300145",
-                    "BR253841771153P": "35300167"
-                };
-                
-                // In production, load from codigos.json
-                // const response = await fetch('codigos.json');
-                // const data = await response.json();
-                // codesData = data.codes;
+                // Check for imported data first
+                const importedCodes = localStorage.getItem('bipagem_imported_codes');
+                if (importedCodes) {
+                    const imported = JSON.parse(importedCodes);
+                    codesData = imported.codes;
+                    document.getElementById('lastImportDate').textContent = new Date(imported.timestamp).toLocaleString('pt-BR');
+                    document.getElementById('totalCodesCount').textContent = Object.keys(codesData).length;
+                } else {
+                    // For demo purposes, using embedded data
+                    codesData = {
+                        "BR259747338411J": "36960000",
+                        "BR253223789688Z": "36950000",
+                        "BR258554089877H": "35300114",
+                        "BR251547397372A": "35300352",
+                        "BR250479272632K": "35350000",
+                        "BR252995453810J": "35334000",
+                        "BR258009821176I": "35324000",
+                        "BR250679813958H": "36985000",
+                        "BR255038998529P": "35325000",
+                        "BR255021795505T": "35323000",
+                        "BR250975639954M": "35330000",
+                        "BR254999675182G": "36955000",
+                        "BR253288681003L": "35300238",
+                        "BR258650626221K": "35300206",
+                        "BR252376322316V": "35330000",
+                        "BR254192166075H": "36955000",
+                        "BR257915739529H": "35300333",
+                        "BR259720647109B": "36950000",
+                        "BR257312724687K": "36950000",
+                        "BR251568951275J": "35350000",
+                        "BR256418899822C": "35350000",
+                        "BR250437397695I": "36955000",
+                        "BR254664600882L": "36955000",
+                        "BR251858464207E": "35330000",
+                        "BR254916621112D": "36950000",
+                        "BR253375879177S": "35300145",
+                        "BR253841771153P": "35300167"
+                    };
+                }
                 
                 localStorage.setItem('bipagem_codes', JSON.stringify({
                     data: codesData,
                     timestamp: new Date().toISOString()
                 }));
+                
+                // Load bipados data
+                const savedBipados = localStorage.getItem('bipagem_bipados');
+                if (savedBipados) {
+                    const bipados = JSON.parse(savedBipados);
+                    // Only load if from today
+                    if (new Date().toDateString() === new Date(bipados.date).toDateString()) {
+                        codigosBipados = bipados.codigos;
+                    }
+                }
                 
             } catch (error) {
                 console.error('Error loading codes:', error);
@@ -707,17 +1193,22 @@
                     timestamp: new Date().toISOString()
                 }));
                 
-                await showApp();
+                if (currentOperator.perfil === 'supervisor') {
+                    await showSupervisorDashboard();
+                } else {
+                    await showApp();
+                }
             } else {
                 errorDiv.textContent = 'Matrícula ou senha inválida';
                 errorDiv.style.display = 'block';
             }
         });
 
-        // Show App
+        // Show App (Operator)
         async function showApp() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('appScreen').style.display = 'block';
+            document.getElementById('supervisorScreen').style.display = 'none';
             
             // Update operator info
             document.getElementById('operatorName').textContent = currentOperator.nome;
@@ -744,6 +1235,31 @@
                     updateHistory();
                 }
             }
+        }
+
+        // Show Supervisor Dashboard
+        async function showSupervisorDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'none';
+            document.getElementById('supervisorScreen').style.display = 'block';
+            
+            // Update supervisor info
+            document.getElementById('supervisorName').textContent = currentOperator.nome;
+            
+            // Load codes
+            await loadCodesData();
+            
+            // Load dashboard data
+            loadDashboardData();
+            
+            // Load operators table
+            loadOperatorsTable();
+            
+            // Setup chart
+            setupChart();
+            
+            // Update dashboard every 5 seconds
+            setInterval(loadDashboardData, 5000);
         }
 
         // Add CEP
@@ -821,20 +1337,40 @@
                 addToHistory(code, result, responseTime);
                 
                 // Play sound
-                playSound(result.status);
+                if (soundEnabled) {
+                    playSound(result.status);
+                }
                 
                 // Vibrate if available
                 if ('vibrate' in navigator) {
-                    navigator.vibrate(result.status === 'success' ? 50 : [100, 50, 100]);
+                    if (result.status === 'success') {
+                        navigator.vibrate(50);
+                    } else if (result.status === 'duplicate') {
+                        navigator.vibrate([50, 50, 50]);
+                    } else {
+                        navigator.vibrate([100, 50, 100]);
+                    }
                 }
                 
                 // Log
                 logValidation(code, result, responseTime);
+                
+                // Update dashboard if needed
+                updateDashboardRealtime();
             }
         }
 
         // Validate code
         function validateCode(code) {
+            // First check if duplicate
+            if (codigosBipados[code]) {
+                return {
+                    status: 'duplicate',
+                    message: `DUPLICADO! Já validado às ${formatTime(codigosBipados[code].timestamp)} por ${codigosBipados[code].operador}`,
+                    originalData: codigosBipados[code]
+                };
+            }
+            
             const cep = codesData[code];
             
             if (!cep) {
@@ -842,6 +1378,15 @@
             }
             
             if (selectedCeps.includes(cep)) {
+                // Save as bipado
+                codigosBipados[code] = {
+                    timestamp: new Date(),
+                    operador: `${currentOperator.nome} (${currentOperator.matricula})`,
+                    cep: cep,
+                    resultado: 'success'
+                };
+                saveBipados();
+                
                 return { status: 'success', message: 'CORRETO!' };
             }
             
@@ -856,7 +1401,7 @@
             const display = document.getElementById('resultDisplay');
             
             // Remove all result classes
-            display.classList.remove('result-success', 'result-error', 'result-warning', 'result-neutral');
+            display.classList.remove('result-success', 'result-error', 'result-warning', 'result-duplicate', 'result-neutral');
             
             // Add appropriate class
             switch (result.status) {
@@ -868,6 +1413,14 @@
                     display.classList.add('result-error');
                     display.innerHTML = `❌ ${result.message} (${time}ms)`;
                     break;
+                case 'duplicate':
+                    display.classList.add('result-duplicate');
+                    display.innerHTML = `
+                        <div>🔄 DUPLICADO!</div>
+                        <div class="result-detail">${result.message}</div>
+                        <div style="font-size: 0.6em; margin-top: 5px;">(${time}ms)</div>
+                    `;
+                    break;
                 case 'notFound':
                     display.classList.add('result-warning');
                     display.innerHTML = `🔍 ${result.message} (${time}ms)`;
@@ -876,10 +1429,75 @@
             
             // Reset after 3 seconds
             setTimeout(() => {
-                display.classList.remove('result-success', 'result-error', 'result-warning');
+                display.classList.remove('result-success', 'result-error', 'result-warning', 'result-duplicate');
                 display.classList.add('result-neutral');
                 display.innerHTML = 'Aguardando próximo código...';
             }, 3000);
+        }
+
+        // Play sound with different tones
+        function playSound(status) {
+            if (!audioContext || !soundEnabled) return;
+            
+            const now = audioContext.currentTime;
+            
+            switch (status) {
+                case 'success':
+                    // High pitch short beep
+                    createBeep(800, 0.1, 'sine');
+                    break;
+                    
+                case 'error':
+                    // Low pitch longer beep
+                    createBeep(300, 0.3, 'square');
+                    break;
+                    
+                case 'duplicate':
+                    // Two quick beeps
+                    createBeep(600, 0.1, 'triangle');
+                    setTimeout(() => createBeep(600, 0.1, 'triangle'), 150);
+                    break;
+                    
+                case 'notFound':
+                    // Ascending tone
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    oscillator.frequency.setValueAtTime(400, now);
+                    oscillator.frequency.linearRampToValueAtTime(600, now + 0.2);
+                    gainNode.gain.value = 0.3;
+                    oscillator.start(now);
+                    oscillator.stop(now + 0.2);
+                    break;
+            }
+        }
+
+        // Create beep helper
+        function createBeep(frequency, duration, type = 'sine') {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+            gainNode.gain.value = 0.3;
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // Toggle sound
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const toggle = document.getElementById('soundToggle');
+            if (soundEnabled) {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
         }
 
         // Update session stats
@@ -893,6 +1511,9 @@
                     break;
                 case 'error':
                     sessionStats.error++;
+                    break;
+                case 'duplicate':
+                    sessionStats.duplicate++;
                     break;
                 case 'notFound':
                     sessionStats.notFound++;
@@ -908,6 +1529,7 @@
             document.getElementById('statTotal').textContent = sessionStats.total;
             document.getElementById('statCorrect').textContent = sessionStats.correct;
             document.getElementById('statError').textContent = sessionStats.error;
+            document.getElementById('statDuplicate').textContent = sessionStats.duplicate;
             document.getElementById('statNotFound').textContent = sessionStats.notFound;
             
             // Calculate accuracy
@@ -962,6 +1584,10 @@
                         statusClass = 'history-error';
                         statusIcon = '❌';
                         break;
+                    case 'duplicate':
+                        statusClass = 'history-duplicate';
+                        statusIcon = '🔄';
+                        break;
                     case 'notFound':
                         statusClass = 'history-warning';
                         statusIcon = '🔍';
@@ -975,6 +1601,7 @@
                             <span class="history-code">${item.code}</span>
                             <span style="color: #6b7280; font-size: 0.85em;">
                                 ${item.result.status === 'error' ? item.result.message : ''}
+                                ${item.result.status === 'duplicate' ? '(Duplicado)' : ''}
                             </span>
                         </div>
                         <div>
@@ -986,38 +1613,20 @@
             }).join('');
         }
 
-        // Play sound
-        function playSound(status) {
-            if (!audioContext) return;
-            
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            switch (status) {
-                case 'success':
-                    oscillator.frequency.value = 800;
-                    gainNode.gain.value = 0.3;
-                    break;
-                case 'error':
-                case 'notFound':
-                    oscillator.frequency.value = 300;
-                    gainNode.gain.value = 0.3;
-                    break;
-            }
-            
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + 0.1);
-        }
-
         // Save stats
         function saveStats() {
             localStorage.setItem('bipagem_stats_' + currentOperator.matricula, JSON.stringify({
                 date: new Date().toISOString(),
                 stats: sessionStats,
                 history: history
+            }));
+        }
+
+        // Save bipados
+        function saveBipados() {
+            localStorage.setItem('bipagem_bipados', JSON.stringify({
+                date: new Date().toISOString(),
+                codigos: codigosBipados
             }));
         }
 
@@ -1028,6 +1637,7 @@
             logs.push({
                 timestamp: new Date().toISOString(),
                 operator: currentOperator.matricula,
+                operatorName: currentOperator.nome,
                 code: code,
                 result: result.status,
                 message: result.message,
@@ -1035,9 +1645,9 @@
                 ceps: selectedCeps
             });
             
-            // Keep only last 1000 logs
-            if (logs.length > 1000) {
-                logs.splice(0, logs.length - 1000);
+            // Keep only last 5000 logs
+            if (logs.length > 5000) {
+                logs.splice(0, logs.length - 5000);
             }
             
             localStorage.setItem('bipagem_logs', JSON.stringify(logs));
@@ -1060,24 +1670,8 @@
             document.getElementById('loading').style.display = 'block';
             
             try {
-                // Check for cached data
-                const cached = localStorage.getItem('bipagem_codes');
-                if (cached) {
-                    const { data, timestamp } = JSON.parse(cached);
-                    const age = new Date() - new Date(timestamp);
-                    
-                    // Use cache if less than 30 minutes old
-                    if (age < 30 * 60 * 1000) {
-                        codesData = data;
-                        alert('Dados já estão atualizados!');
-                        return;
-                    }
-                }
-                
-                // In production, fetch new data
                 await loadCodesData();
                 alert('Dados sincronizados com sucesso!');
-                
             } catch (error) {
                 alert('Erro ao sincronizar dados: ' + error.message);
             } finally {
@@ -1095,12 +1689,14 @@
                     total: 0,
                     correct: 0,
                     error: 0,
+                    duplicate: 0,
                     notFound: 0,
                     times: []
                 };
                 history = [];
                 
                 document.getElementById('appScreen').style.display = 'none';
+                document.getElementById('supervisorScreen').style.display = 'none';
                 document.getElementById('loginScreen').style.display = 'flex';
                 document.getElementById('loginForm').reset();
             }
@@ -1116,8 +1712,10 @@
         // Update time
         function updateTime() {
             const now = new Date();
-            document.getElementById('currentTime').textContent = 
-                now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const timeString = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            
+            document.getElementById('currentTime').textContent = timeString;
+            document.getElementById('supervisorTime').textContent = timeString;
         }
 
         // Format time
@@ -1146,12 +1744,473 @@
             }
         });
 
+        // Format CEP input
+        document.getElementById('cepInput').addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 5) {
+                value = value.substring(0, 5) + '-' + value.substring(5, 8);
+            }
+            e.target.value = value;
+        });
+
         // Prevent form resubmission
         window.addEventListener('beforeunload', (e) => {
             if (sessionStats.total > 0) {
                 saveStats();
             }
         });
+
+        // SUPERVISOR FUNCTIONS
+
+        // Switch tabs
+        function switchTab(tabName) {
+            // Remove active from all tabs
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active to clicked tab
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Load dashboard data
+        function loadDashboardData() {
+            const logs = JSON.parse(localStorage.getItem('bipagem_logs') || '[]');
+            const todayLogs = logs.filter(log => 
+                new Date(log.timestamp).toDateString() === new Date().toDateString()
+            );
+            
+            // Calculate stats
+            const stats = {
+                total: todayLogs.length,
+                success: todayLogs.filter(log => log.result === 'success').length,
+                error: todayLogs.filter(log => log.result === 'error').length,
+                duplicate: todayLogs.filter(log => log.result === 'duplicate').length,
+                notFound: todayLogs.filter(log => log.result === 'notFound').length
+            };
+            
+            // Update dashboard stats
+            document.getElementById('dashTotal').textContent = stats.total;
+            document.getElementById('dashSuccess').textContent = stats.success;
+            document.getElementById('dashError').textContent = stats.error;
+            document.getElementById('dashDuplicate').textContent = stats.duplicate;
+            
+            // Update chart
+            if (pieChart) {
+                pieChart.data.datasets[0].data = [
+                    stats.success,
+                    stats.error,
+                    stats.duplicate,
+                    stats.notFound
+                ];
+                pieChart.update();
+            }
+            
+            // Update active operators
+            updateActiveOperators(todayLogs);
+            
+            // Update lotes
+            updateLotes(todayLogs);
+        }
+
+        // Setup chart
+        function setupChart() {
+            const ctx = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['✅ Sucesso', '❌ CEP Errado', '🔄 Duplicados', '🔍 Não Encontrados'],
+                    datasets: [{
+                        data: [0, 0, 0, 0],
+                        backgroundColor: [
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(245, 158, 11, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(34, 197, 94, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(139, 92, 246, 1)',
+                            'rgba(245, 158, 11, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update active operators
+        function updateActiveOperators(logs) {
+            const operatorStats = {};
+            
+            logs.forEach(log => {
+                if (!operatorStats[log.operatorName]) {
+                    operatorStats[log.operatorName] = {
+                        matricula: log.operator,
+                        total: 0,
+                        success: 0,
+                        lastActivity: null
+                    };
+                }
+                
+                operatorStats[log.operatorName].total++;
+                if (log.result === 'success') {
+                    operatorStats[log.operatorName].success++;
+                }
+                operatorStats[log.operatorName].lastActivity = log.timestamp;
+            });
+            
+            const container = document.getElementById('activeOperatorsList');
+            const operators = Object.entries(operatorStats);
+            
+            if (operators.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280;">Nenhum operador ativo hoje</p>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Operador</th>
+                            <th>Matrícula</th>
+                            <th>Total</th>
+                            <th>Taxa Acerto</th>
+                            <th>Última Atividade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${operators.map(([name, stats]) => `
+                            <tr>
+                                <td>${name}</td>
+                                <td>${stats.matricula}</td>
+                                <td>${stats.total}</td>
+                                <td>${Math.round((stats.success / stats.total) * 100)}%</td>
+                                <td>${formatTime(stats.lastActivity)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Load operators table
+        function loadOperatorsTable() {
+            const tbody = document.getElementById('operatorsTableBody');
+            const operators = Object.entries(operatorsData).filter(([_, data]) => data.perfil !== 'supervisor');
+            
+            tbody.innerHTML = operators.map(([matricula, data]) => `
+                <tr>
+                    <td>${matricula}</td>
+                    <td>${data.nome}</td>
+                    <td>****</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="removeOperator('${matricula}')" style="width: auto; padding: 6px 12px; font-size: 14px;">
+                            🗑️ Remover
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Show add operator modal
+        function showAddOperatorModal() {
+            document.getElementById('addOperatorModal').style.display = 'flex';
+            document.getElementById('newMatricula').focus();
+        }
+
+        // Close add operator modal
+        function closeAddOperatorModal() {
+            document.getElementById('addOperatorModal').style.display = 'none';
+            document.getElementById('addOperatorForm').reset();
+        }
+
+        // Add operator form
+        document.getElementById('addOperatorForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const matricula = document.getElementById('newMatricula').value;
+            const nome = document.getElementById('newNome').value;
+            const senha = document.getElementById('newSenha').value;
+            
+            if (operatorsData[matricula]) {
+                alert('Matrícula já existe!');
+                return;
+            }
+            
+            operatorsData[matricula] = {
+                nome: nome,
+                senha: senha,
+                perfil: 'operador'
+            };
+            
+            localStorage.setItem('bipagem_operators', JSON.stringify(operatorsData));
+            
+            loadOperatorsTable();
+            closeAddOperatorModal();
+            
+            alert('Operador adicionado com sucesso!');
+        });
+
+        // Remove operator
+        function removeOperator(matricula) {
+            if (confirm(`Deseja remover o operador ${operatorsData[matricula].nome}?`)) {
+                delete operatorsData[matricula];
+                localStorage.setItem('bipagem_operators', JSON.stringify(operatorsData));
+                loadOperatorsTable();
+                alert('Operador removido com sucesso!');
+            }
+        }
+
+        // Setup file upload
+        function setupFileUpload() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload(files[0]);
+                }
+            });
+            
+            // File input change
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0]);
+                }
+            });
+        }
+
+        // Handle file upload
+        async function handleFileUpload(file) {
+            document.getElementById('importLoading').style.display = 'block';
+            document.getElementById('uploadArea').style.display = 'none';
+            
+            try {
+                const text = await file.text();
+                let data = [];
+                
+                if (file.name.endsWith('.csv')) {
+                    // Parse CSV
+                    const lines = text.split('\n');
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (line) {
+                            const [codigo, cep] = line.split(/[,;\t]/);
+                            if (codigo && cep) {
+                                data.push({ codigo: codigo.trim(), cep: cep.trim().replace(/\D/g, '') });
+                            }
+                        }
+                    }
+                } else {
+                    alert('Por enquanto, apenas arquivos CSV são suportados');
+                    return;
+                }
+                
+                // Validate data
+                const validCodes = {};
+                let invalidCount = 0;
+                
+                data.forEach(item => {
+                    if (item.codigo && item.cep && item.cep.length === 8) {
+                        validCodes[item.codigo] = item.cep;
+                    } else {
+                        invalidCount++;
+                    }
+                });
+                
+                importedData = validCodes;
+                
+                // Show preview
+                document.getElementById('validCodesCount').textContent = Object.keys(validCodes).length;
+                document.getElementById('invalidCodesCount').textContent = invalidCount;
+                document.getElementById('importPreview').style.display = 'block';
+                
+            } catch (error) {
+                alert('Erro ao processar arquivo: ' + error.message);
+            } finally {
+                document.getElementById('importLoading').style.display = 'none';
+            }
+        }
+
+        // Confirm import
+        function confirmImport() {
+            if (!importedData) return;
+            
+            codesData = importedData;
+            
+            // Save to localStorage
+            localStorage.setItem('bipagem_imported_codes', JSON.stringify({
+                codes: codesData,
+                timestamp: new Date().toISOString()
+            }));
+            
+            // Update display
+            document.getElementById('lastImportDate').textContent = new Date().toLocaleString('pt-BR');
+            document.getElementById('totalCodesCount').textContent = Object.keys(codesData).length;
+            
+            // Reset form
+            cancelImport();
+            
+            alert('Códigos importados com sucesso!');
+        }
+
+        // Cancel import
+        function cancelImport() {
+            importedData = null;
+            document.getElementById('uploadArea').style.display = 'block';
+            document.getElementById('importPreview').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+        }
+
+        // Reset daily data
+        function resetDailyData() {
+            if (confirm('Deseja realmente resetar todos os dados do dia? Isso irá:\n\n- Limpar todos os códigos bipados\n- Zerar estatísticas\n- Limpar históricos\n\nEsta ação não pode ser desfeita!')) {
+                // Clear bipados
+                codigosBipados = {};
+                localStorage.removeItem('bipagem_bipados');
+                
+                // Clear all operator stats
+                Object.keys(operatorsData).forEach(matricula => {
+                    localStorage.removeItem('bipagem_stats_' + matricula);
+                });
+                
+                // Clear logs
+                localStorage.setItem('bipagem_logs', '[]');
+                
+                // Reload dashboard
+                loadDashboardData();
+                
+                alert('Dados do dia resetados com sucesso!');
+            }
+        }
+
+        // Update lotes
+        function updateLotes(logs) {
+            const lotes = {};
+            
+            // Group successful validations by CEP
+            logs.filter(log => log.result === 'success').forEach(log => {
+                const cep = codesData[log.code];
+                if (cep) {
+                    if (!lotes[cep]) {
+                        lotes[cep] = [];
+                    }
+                    lotes[cep].push(log.code);
+                }
+            });
+            
+            const container = document.getElementById('lotesList');
+            
+            if (Object.keys(lotes).length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280;">Nenhum código validado ainda</p>';
+                return;
+            }
+            
+            container.innerHTML = Object.entries(lotes).map(([cep, codes]) => `
+                <div class="lote-container">
+                    <div class="lote-header">
+                        <div class="lote-title">📍 CEP: ${formatCep(cep)}</div>
+                        <div class="lote-count">${codes.length} códigos</div>
+                    </div>
+                    <div class="lote-codes">
+                        ${codes.slice(0, 10).map(code => `
+                            <div class="lote-code-item">${code}</div>
+                        `).join('')}
+                        ${codes.length > 10 ? `<div class="lote-code-item">... e mais ${codes.length - 10} códigos</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Export lotes
+        function exportLotes() {
+            const logs = JSON.parse(localStorage.getItem('bipagem_logs') || '[]');
+            const todayLogs = logs.filter(log => 
+                new Date(log.timestamp).toDateString() === new Date().toDateString() &&
+                log.result === 'success'
+            );
+            
+            const lotes = {};
+            todayLogs.forEach(log => {
+                const cep = codesData[log.code];
+                if (cep) {
+                    if (!lotes[cep]) {
+                        lotes[cep] = [];
+                    }
+                    lotes[cep].push({
+                        codigo: log.code,
+                        operador: log.operatorName,
+                        horario: new Date(log.timestamp).toLocaleString('pt-BR')
+                    });
+                }
+            });
+            
+            const blob = new Blob([JSON.stringify(lotes, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lotes_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Update dashboard realtime
+        function updateDashboardRealtime() {
+            // Only update if supervisor screen is active
+            if (document.getElementById('supervisorScreen').style.display !== 'none') {
+                loadDashboardData();
+            }
+        }
+
+        // Modal close on click outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addOperatorModal');
+            if (event.target === modal) {
+                closeAddOperatorModal();
+            }
+        }
     </script>
 </body>
 </html>
