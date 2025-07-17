@@ -1101,7 +1101,9 @@
                     currentOperator = session.operator;
                     if (currentOperator.perfil === 'supervisor') {
                         await showSupervisorDashboard();
-                    } else {}
+                    } else {
+                        await showApp();
+                    }
                 }
             }
 
@@ -1128,7 +1130,9 @@
                     }
                 }
             });
-        });}
+        });
+                        await showApp();
+                    }
                 }
             }
 
@@ -1149,7 +1153,7 @@
         // Load operators data
         async function loadOperatorsData() {
             try {
-                // For demo purposes, using embedded data
+                // Embedded data for immediate use
                 operatorsData = {
                     "1234": { "nome": "João Silva", "senha": "1234", "perfil": "operador" },
                     "5678": { "nome": "Maria Santos", "senha": "5678", "perfil": "operador" },
@@ -1158,18 +1162,26 @@
                     "2222": { "nome": "Pedro Mendes", "senha": "2222", "perfil": "operador" }
                 };
                 
-                // In production, load from operadores.json
-                // const response = await fetch('operadores.json');
-                // const data = await response.json();
-                // operatorsData = data.operators;
-                
-                // Load from localStorage if exists
+                // Check for saved operators in localStorage
                 const savedOperators = localStorage.getItem('bipagem_operators');
                 if (savedOperators) {
-                    operatorsData = JSON.parse(savedOperators);
+                    try {
+                        const parsed = JSON.parse(savedOperators);
+                        // Merge with default operators
+                        operatorsData = { ...operatorsData, ...parsed };
+                    } catch (e) {
+                        console.log('Using default operators');
+                    }
                 }
+                
+                console.log('Operators loaded:', Object.keys(operatorsData).length);
             } catch (error) {
                 console.error('Error loading operators:', error);
+                // Ensure we always have default operators
+                operatorsData = {
+                    "1234": { "nome": "João Silva", "senha": "1234", "perfil": "operador" },
+                    "9999": { "nome": "Carlos Supervisor", "senha": "9999", "perfil": "supervisor" }
+                };
             }
         }
 
@@ -1244,9 +1256,12 @@
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const matricula = document.getElementById('matricula').value;
+            const matricula = document.getElementById('matricula').value.trim();
             const senha = document.getElementById('senha').value;
             const errorDiv = document.getElementById('loginError');
+            
+            console.log('Tentando login:', matricula);
+            console.log('Operadores disponíveis:', Object.keys(operatorsData));
             
             if (operatorsData[matricula] && operatorsData[matricula].senha === senha) {
                 currentOperator = {
@@ -1259,12 +1274,17 @@
                     timestamp: new Date().toISOString()
                 }));
                 
+                errorDiv.style.display = 'none';
+                
                 if (currentOperator.perfil === 'supervisor') {
                     await showSupervisorDashboard();
-                } else {}
+                } else {
+                    await showApp();
+                }
             } else {
                 errorDiv.textContent = 'Matrícula ou senha inválida';
                 errorDiv.style.display = 'block';
+                console.log('Login falhou - matrícula não encontrada ou senha incorreta');
             }
         });
 
