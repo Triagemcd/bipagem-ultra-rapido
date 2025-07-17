@@ -3,32 +3,27 @@
     "1234": {
       "nome": "João Silva",
       "senha": "1234",
-      "setor": "Expedição"
+      "perfil": "operador"
     },
     "5678": {
       "nome": "Maria Santos",
       "senha": "5678",
-      "setor": "Separação"
+      "perfil": "operador"
     },
     "9999": {
-      "nome": "Carlos Oliveira",
+      "nome": "Carlos Supervisor",
       "senha": "9999",
-      "setor": "Conferência"
+      "perfil": "supervisor"
     },
     "1111": {
       "nome": "Ana Costa",
       "senha": "1111",
-      "setor": "Expedição"
+      "perfil": "operador"
     },
     "2222": {
       "nome": "Pedro Mendes",
       "senha": "2222",
-      "setor": "Separação"
-    },
-    "3333": {
-      "nome": "Lucia Ferreira",
-      "senha": "3333",
-      "setor": "Conferência"
+      "perfil": "operador"
     }
   }
 }
