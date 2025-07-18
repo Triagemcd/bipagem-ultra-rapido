@@ -160,7 +160,7 @@
         // Firebase Functions
         async function loadCodesFromFirebase() {
             try {
-                const snapshot = await database.ref('bipagem/codes').once('value');
+                const snapshot = await database.ref('sistema/codes').once('value');
                 const firebaseCodes = snapshot.val();
                 
                 if (firebaseCodes) {
@@ -205,7 +205,7 @@
             }
 
             try {
-                await database.ref('bipagem/codes').set(codesData);
+                await database.ref('sistema/codes').set(codesData);
                 console.log('🔥 Códigos salvos no Firebase com sucesso!');
                 
                 // Also save locally as backup
@@ -225,10 +225,13 @@
             }
 
             try {
-                await database.ref(`bipagem/validations/${code}`).set(validationData);
+                // Clean code key for Firebase (remove special characters)
+                const cleanCode = code.replace(/[.#$/[\]]/g, '_');
+                
+                await database.ref(`sistema/validacoes/${cleanCode}`).set(validationData);
                 
                 // Update operator stats in real-time
-                const operatorRef = database.ref(`bipagem/operators/${currentUser.matricula}`);
+                const operatorRef = database.ref(`sistema/operadores/${currentUser.matricula}`);
                 await operatorRef.update({
                     nome: currentUser.nome,
                     lastActivity: new Date().toISOString(),
@@ -246,7 +249,7 @@
 
             // Listen for code updates (for operators)
             if (currentUser.perfil === 'operador') {
-                const codesRef = database.ref('bipagem/codes');
+                const codesRef = database.ref('sistema/codes');
                 codesRef.on('value', (snapshot) => {
                     const data = snapshot.val();
                     if (data && data.codes) {
@@ -267,17 +270,30 @@
 
             // Listen for validations (for supervisor dashboard)
             if (currentUser.perfil === 'supervisor') {
-                const validationsRef = database.ref('bipagem/validations');
+                const validationsRef = database.ref('sistema/validacoes');
                 validationsRef.on('value', (snapshot) => {
                     const validations = snapshot.val() || {};
-                    bipados = validations;
+                    
+                    // Convert Firebase keys back to original codes
+                    const convertedValidations = {};
+                    Object.entries(validations).forEach(([cleanKey, data]) => {
+                        // Try to find original code
+                        const originalCode = Object.keys(currentCodes).find(code => 
+                            code.replace(/[.#$/[\]]/g, '_') === cleanKey
+                        );
+                        if (originalCode) {
+                            convertedValidations[originalCode] = data;
+                        }
+                    });
+                    
+                    bipados = convertedValidations;
                     console.log('🔥 Validações atualizadas em tempo real');
                     updateDashboard();
                 });
                 firebaseListeners.push(validationsRef);
 
                 // Listen for online operators
-                const operatorsRef = database.ref('bipagem/operators');
+                const operatorsRef = database.ref('sistema/operadores');
                 operatorsRef.on('value', (snapshot) => {
                     const operators = snapshot.val() || {};
                     updateActiveOperators(operators);
@@ -473,7 +489,7 @@
                 
                 // Mark operator as online in Firebase
                 if (isFirebaseConnected) {
-                    database.ref(`bipagem/operators/${currentUser.matricula}`).update({
+                    database.ref(`sistema/operadores/${currentUser.matricula}`).update({
                         nome: currentUser.nome,
                         online: true,
                         lastActivity: new Date().toISOString()
@@ -496,7 +512,7 @@
         function logout() {
             // Mark operator as offline in Firebase
             if (isFirebaseConnected && currentUser) {
-                database.ref(`bipagem/operators/${currentUser.matricula}`).update({
+                database.ref(`sistema/operadores/${currentUser.matricula}`).update({
                     online: false,
                     lastActivity: new Date().toISOString()
                 });
@@ -888,7 +904,8 @@
             // Save to Firebase
             if (isFirebaseConnected) {
                 completedBatches.slice(-selectedCeps.length).forEach(batch => {
-                    database.ref(`bipagem/batches/${batch.cep}_${batch.timestamp}`).set(batch);
+                    const batchKey = `${batch.cep}_${Date.now()}`;
+                    database.ref(`sistema/lotes/${batchKey}`).set(batch);
                 });
             }
 
