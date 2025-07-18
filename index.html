@@ -666,9 +666,11 @@
         <div class="header">
             <h2 id="welcomeMessage">Sistema de Bipagem</h2>
             <div class="user-info">
+                <!-- Sync Status com botão manual -->
                 <div id="syncStatus" class="sync-status sync-online">
                     <span class="spinner hidden"></span>
                     <span id="syncText">🟢 Online</span>
+                    <button onclick="forceSyncNow()" class="btn" style="margin-left: 10px; padding: 4px 8px; font-size: 12px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 4px;">🔄 Sync</button>
                 </div>
                 <span id="userInfo"></span>
                 <button onclick="logout()" class="btn btn-danger">Sair</button>
@@ -897,7 +899,10 @@
             owner: 'triagemd',
             repo: 'bipagem-ultra-rapido',
             branch: 'main',
-            codesFile: 'codigos.json'
+            codesFile: 'codigos.json',
+            // URLs diferentes para leitura e escrita
+            rawUrl: 'https://raw.githubusercontent.com/triagemd/bipagem-ultra-rapido/main/codigos.json',
+            apiUrl: 'https://api.github.com/repos/triagemd/bipagem-ultra-rapido/contents/codigos.json'
         };
 
         // Default Data
@@ -967,31 +972,31 @@
             try {
                 updateSyncStatus('syncing');
                 
-                const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.codesFile}`;
-                console.log('🔄 Tentando sincronizar:', url);
+                // Use Raw URL para leitura (mais confiável)
+                const url = GITHUB_CONFIG.rawUrl;
+                console.log('🔄 Tentando sincronizar via Raw URL:', url);
                 
                 const response = await fetch(url);
-                console.log('📡 Resposta da API:', response.status, response.statusText);
+                console.log('📡 Resposta da Raw URL:', response.status, response.statusText);
                 
                 if (response.ok) {
-                    const data = await response.json();
-                    const content = JSON.parse(atob(data.content));
-                    console.log('📦 Dados recebidos:', content);
+                    const content = await response.json();
+                    console.log('📦 Dados recebidos via Raw URL:', content);
                     
                     // Check if there are updates
                     const localData = JSON.parse(localStorage.getItem('bipagem_imported_codes') || '{}');
                     
-                    if (new Date(content.lastUpdate) > new Date(localData.lastUpdate || 0)) {
+                    if (new Date(content.lastUpdate || 0) > new Date(localData.lastUpdate || 0)) {
                         // Update local data
                         localStorage.setItem('bipagem_imported_codes', JSON.stringify(content));
                         currentCodes = content.codes || {};
                         
                         // Notify user of updates
                         if (currentUser && currentUser.perfil === 'operador') {
-                            showNotification('📥 Novos códigos sincronizados!');
+                            showNotification('📥 Novos códigos sincronizados via GitHub!');
                         }
                         
-                        console.log('✅ Códigos sincronizados do GitHub');
+                        console.log('✅ Códigos sincronizados via Raw URL');
                     } else {
                         console.log('📅 Dados já estão atualizados');
                     }
@@ -999,27 +1004,25 @@
                     lastSyncTime = new Date();
                     updateSyncStatus('online');
                 } else if (response.status === 404) {
-                    // File doesn't exist yet - create it for supervisor, show offline for operator
-                    console.log('📁 Arquivo codigos.json não encontrado no GitHub (404)');
+                    // File doesn't exist yet
+                    console.log('📁 Arquivo codigos.json não encontrado (404) - Primeira execução?');
                     if (currentUser && currentUser.perfil === 'supervisor') {
-                        // Supervisor can create the file
                         updateSyncStatus('offline');
-                        showNotification('📁 Arquivo de códigos será criado na primeira importação', 'warning');
+                        showNotification('📁 Arquivo será criado na primeira importação', 'warning');
                     } else {
-                        // Operator works with local data
                         updateSyncStatus('offline');
-                        console.log('💾 Usando dados locais (arquivo não existe no GitHub)');
+                        console.log('💾 Usando dados locais (arquivo não existe)');
+                        showNotification('📱 Modo offline - aguardando sincronização', 'warning');
                     }
                 } else {
-                    throw new Error(`GitHub API retornou: ${response.status} - ${response.statusText}`);
+                    throw new Error(`Raw URL retornou: ${response.status} - ${response.statusText}`);
                 }
             } catch (error) {
-                console.error('❌ Erro na sincronização:', error);
+                console.error('❌ Erro na sincronização via Raw URL:', error);
                 updateSyncStatus('offline');
                 
-                // Only show notification if it's not a network error
-                if (!error.message.includes('fetch') && currentUser && currentUser.perfil === 'operador') {
-                    showNotification('📱 Trabalhando offline - usando dados locais', 'warning');
+                if (currentUser && currentUser.perfil === 'operador') {
+                    showNotification('📱 Modo offline - usando dados locais', 'warning');
                 }
             }
         }
@@ -1028,13 +1031,18 @@
             try {
                 updateSyncStatus('syncing');
                 
+                // Use API URL para escrita
+                const apiUrl = GITHUB_CONFIG.apiUrl;
+                console.log('📤 Enviando dados para GitHub via API:', apiUrl);
+                
                 // Get current file to get SHA
-                const getResponse = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.codesFile}`);
+                const getResponse = await fetch(apiUrl);
                 
                 let sha = null;
                 if (getResponse.ok) {
                     const currentFile = await getResponse.json();
                     sha = currentFile.sha;
+                    console.log('📋 SHA atual do arquivo:', sha);
                 }
 
                 // Prepare content
@@ -1050,8 +1058,10 @@
                     updateData.sha = sha;
                 }
 
+                console.log('📝 Dados para commit:', updateData.message);
+
                 // Update file
-                const putResponse = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.codesFile}`, {
+                const putResponse = await fetch(apiUrl, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1060,11 +1070,21 @@
                 });
 
                 if (putResponse.ok) {
+                    const result = await putResponse.json();
+                    console.log('✅ Arquivo salvo no GitHub:', result.commit.sha);
                     updateSyncStatus('online');
-                    showNotification('✅ Códigos salvos no GitHub!');
+                    showNotification('✅ Códigos salvos e sincronizados no GitHub!');
+                    
+                    // Aguarda 2 segundos para o Raw URL se atualizar
+                    setTimeout(() => {
+                        console.log('🔄 Forçando nova sincronização após upload...');
+                        syncWithGitHub();
+                    }, 2000);
+                    
                     return true;
                 } else {
-                    throw new Error('Falha no upload');
+                    const errorData = await putResponse.json();
+                    throw new Error(`Falha no upload: ${putResponse.status} - ${errorData.message}`);
                 }
             } catch (error) {
                 console.error('❌ Erro ao salvar no GitHub:', error);
@@ -1100,10 +1120,15 @@
         function startSyncInterval() {
             if (syncInterval) clearInterval(syncInterval);
             
-            // Sync every 30 seconds for operators
+            // Sync every 30 seconds for operators using Raw URL
             if (currentUser && currentUser.perfil === 'operador') {
+                console.log('🔄 Iniciando sincronização automática via Raw URL para operador');
                 syncInterval = setInterval(syncWithGitHub, 30000);
                 syncWithGitHub(); // Initial sync
+            } else if (currentUser && currentUser.perfil === 'supervisor') {
+                console.log('👑 Supervisor: Sincronização manual via importação');
+                // Supervisor só sincroniza quando importa dados
+                syncWithGitHub(); // Verificação inicial
             }
         }
 
